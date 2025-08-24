@@ -110,34 +110,46 @@
         ((_ch) == ' ' || (_ch) == '\n' || (_ch) == '\r' || (_ch) == '\t' || (_ch) == '\v') ? true : false
 #endif
 
-#ifndef STRCPY
-#   define __def_strcpy
-#   define STRCPY   __impl_strcpy
+#ifdef USE_STD_STRING_HANDLERS
+#   include <string.h>
+#   define STRCPY   strcpy
+#   define STRNCAT  strncat
+#   define STRCAT   strcat
+#   define MEMSET   memset
+#   define STREQU(s1, s2)       strcmp(s1, s2) == 0   
+#   define STRNEQU(s1, s2, _n)  strncmp(s1, s2, _n) == 0
+#   define STRLEN   strlen
+#else
+#   ifndef STRCPY
+#      define __def_strcpy
+#      define STRCPY   __impl_strcpy
+#   endif
+#   ifndef STRNCAT
+#      define __def_strncat
+#      define STRNCAT  __impl_strncat
+#   endif
+#   ifndef STRCAT
+#      define __def_strcat
+#      define STRCAT   __impl_strcat
+#   endif
+#   ifndef MEMSET
+#      define __def_memset
+#      define MEMSET   __impl_memset
+#   endif
+#   ifndef STREQU
+#      define __def_strequ
+#      define STREQU   __impl_equstr
+#   endif
+#   ifndef STRNEQU
+#      define __def_strnequ
+#      define STRNEQU  __impl_nequstr
+#   endif
+#   ifndef STRLEN
+#      define __def_strlen
+#      define STRLEN   __impl_strlen
+#   endif
 #endif
-#ifndef STRNCAT
-#   define __def_strncat
-#   define STRNCAT  __impl_strncat
-#endif
-#ifndef STRCAT
-#   define __def_strcat
-#   define STRCAT   __impl_strcat
-#endif
-#ifndef MEMSET
-#   define __def_memset
-#   define MEMSET   __impl_memset
-#endif
-#ifndef STREQU
-#   define __def_strequ
-#   define STREQU   __impl_equstr
-#endif
-#ifndef STRNEQU
-#   define __def_strnequ
-#   define STRNEQU  __impl_nequstr
-#endif
-#ifndef STRLEN
-#   define __def_strlen
-#   define STRLEN   __impl_strlen
-#endif
+
 
 // String as parameter
 #define STRARG(_str)    (_str).ptr
