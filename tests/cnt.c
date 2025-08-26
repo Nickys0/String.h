@@ -16,6 +16,7 @@ typedef struct Tester_string_Parameters {
         do{\
             TSP prm = {__VA_ARGS__};\
             Tst_StringRetVal __r = Testing_ ## _fn(prm);\
+            fn_status[idx] = __r.fn_exit_status;\
             __impl_tester_log(#_fn, idx++, __r.s.ptr, prm.fn_exp);\
         }while(0)
 
@@ -35,7 +36,7 @@ int tester_header_length =  60;
 size_t idx =                0;
 
 int main(void){
-
+    MEMSET(fn_status, FNS_FUNCTION_FAILED, sizeof(fn_status));
     const char * ims = "Hello From String.h";
 
     START_TEST( );
@@ -51,16 +52,16 @@ int main(void){
 Tst_StringRetVal Testing_String_new(TSP prm) {
 
     String s1 = String_new( ); /* should return an empty string */
-    if(s1.ptr == NULL)             return ret_tst(s1, FNS_FUNCTION_FAILED);
-    if(__impl_equstr(s1.ptr, ""))  return ret_tst(s1, FNS_FUNCTION_SUCCED);
+    if(s1.ptr == NULL)      return ret_tst(s1, FNS_FUNCTION_FAILED);
+    if(STREQU(s1.ptr, ""))  return ret_tst(s1, FNS_FUNCTION_SUCCED);
 
     return ret_tst(s1, FNS_UNKNOWN_BEAHAVIOR);
 }
 
 Tst_StringRetVal Testing_String_new_from_cstr(TSP prm){
-    String s1 = String_new_from_cstr("Hello World from String.h");
+    String s1 = String_new_from_cstr(prm.fn_ini);
     if(s1.ptr == NULL)              return ret_tst(s1, FNS_FUNCTION_FAILED);
-    if(__impl_equstr(s1.ptr, prm.fn_exp))  return ret_tst(s1, FNS_FUNCTION_SUCCED);
+    if(STREQU(s1.ptr, prm.fn_exp))  return ret_tst(s1, FNS_FUNCTION_SUCCED);
 
     return ret_tst(s1, FNS_UNKNOWN_BEAHAVIOR);
 }
@@ -69,8 +70,8 @@ Tst_StringRetVal Testing_String_new_from_Str(TSP prm){
     String s2 = String_new_from_cstr(prm.fn_ini);
     String s1 = String_new_from_Str(&s2);
 
-    if(s1.ptr == NULL)                      return ret_tst(s1, FNS_FUNCTION_FAILED);
-    if(__impl_equstr(s1.ptr, prm.fn_exp))   return ret_tst(s1, FNS_FUNCTION_SUCCED);
+    if(s1.ptr == NULL)               return ret_tst(s1, FNS_FUNCTION_FAILED);
+    if(STREQU(s1.ptr, prm.fn_exp))   return ret_tst(s1, FNS_FUNCTION_SUCCED);
 
     return ret_tst(s1, FNS_UNKNOWN_BEAHAVIOR);
 }
@@ -78,8 +79,8 @@ Tst_StringRetVal Testing_String_new_from_Str(TSP prm){
 Tst_StringRetVal Testing_String_new_from_sv(TSP prm){
     String s1 = String_new_from_sv(prm.fn_ini, 5);
     
-    if(s1.ptr == NULL)                      return ret_tst(s1, FNS_FUNCTION_FAILED);
-    if(__impl_equstr(s1.ptr, prm.fn_exp))   return ret_tst(s1, FNS_FUNCTION_SUCCED);
+    if(s1.ptr == NULL)               return ret_tst(s1, FNS_FUNCTION_FAILED);
+    if(STREQU(s1.ptr, prm.fn_exp))   return ret_tst(s1, FNS_FUNCTION_SUCCED);
 
     return ret_tst(s1, FNS_UNKNOWN_BEAHAVIOR);
 }

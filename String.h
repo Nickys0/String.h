@@ -22,9 +22,14 @@
  *   ```
  * 
  *   OPTIONS:
- *   -    #define STRING_IMPLEMENTATION           It is used to the the library to include the implementation of 
- *                                                its self
+ *   -    #define STRING_IMPLEMENTATION         It is used to the the library to include the implementation of 
+ *                                              its self
+ * 
+ *   -    #define STRING_USE_STD_HANDLERS       If defined instead of using internal implementation of some string.h 
+ *                                              functions it will include string.h instead
  *
+ *   -    #define STRING_USE_LIBC_ALLOCATORS    It is used to know what allocator should be used [DEFAULT:0(malloc)]
+ * 
 **/
 
 #ifndef _C_STRING_H
@@ -49,13 +54,10 @@
 #   include <stdlib.h> // for libc allocators
 #   define STRING_FREE(_ptr)            free(_ptr)
 #   define STRING_REALLOC(_old, _size)  realloc(_old, _size)
-// malloc
 #   if STRING_USE_LIBC_ALLOCATORS == 0
 #       define STRING_ALLOC(_nBytes)    malloc( _nBytes )
-// calloc
 #   elif STRING_USE_LIBC_ALLOCATORS == 1
 #       define STRING_ALLOC(_nBytes)    calloc(_nBytes, sizeof(char))
-// Invalid value
 #   else
 #       error "Invalid allocator chosen!"
 #   endif /* STRING_USE_LIBC_ALLOCATORS == 0 */
@@ -110,7 +112,7 @@
         ((_ch) == ' ' || (_ch) == '\n' || (_ch) == '\r' || (_ch) == '\t' || (_ch) == '\v') ? true : false
 #endif
 
-#ifdef USE_STD_STRING_HANDLERS
+#ifdef STRING_USE_STD_HANDLERS
 #   include <string.h>
 #   define STRCPY   strcpy
 #   define STRNCAT  strncat
@@ -315,6 +317,67 @@ STRAPI void String_free(PString self);
 // static char* __impl_strncat(char* s1, const char* s2, size_t __n);
 // static void* __impl_memset(void* s1, int ch, size_t __n);
 
+#ifdef __def_strlen
+static size_t __impl_strlen(const char* str1){
+    size_t __r = 0;
+    for( ;*str1++ != '\0'; ++__r) { }
+    return __r;
+}
+#endif
+
+#ifdef __def_strequ
+bool __impl_equstr(const char* str1, const char* str2){
+    while(*str1 != '\0' && *str1++ == *str2++){ }
+    return (*str1 == '\0' && *str2 == '\0');
+}
+#endif
+
+#ifdef __def_strnequ
+bool __impl_nequstr(const char* s1, const char* s2, size_t Nbytes){
+    while(Nbytes-- > 0){
+        if(*s1++ != *s2++) return false;
+    }
+    return true;
+}
+#endif
+
+#ifdef __def_strcpy
+char* __impl_strcpy(char* s1, const char* s2){
+    char* s = s1;
+    while(*s2 != '\0') *s++ = *s2++;
+    *s = '\0';
+    return s1;
+}
+#endif
+
+#ifdef __def_strcat
+char* __impl_strcat(char* s1, const char* s2){
+    char* s = s1;
+    while(*s++ != '\0') { }
+    while(*s2 != '\0'){ *s++ = *s2++; }
+    *s = '\0';
+    return s1;
+}
+#endif
+
+#ifdef __def_strncat
+char* __impl_strncat(char* s1, const char* s2, size_t __n){
+    char* s = s1;
+    while(*s != '\0') { s++; }
+    while(__n-- > 0){ *s++ = *s2++; }
+    *s = '\0';
+    return s1;
+}
+#endif
+
+#ifdef __def_memset
+void* __impl_memset(void* s1, int ch, size_t __n){
+    unsigned char* __r = (unsigned char*) s1;
+    for(size_t i = 0; i < __n; ++i) __r[i] = (unsigned char)ch;
+    return (void*)__r;
+}
+#endif
+
 // This function will check if there is enough space for pushing _Nbytes into self, 
 // if not it will expand the string
 static void _String_fit(PString self, size_t _Nbytes){
@@ -323,12 +386,11 @@ static void _String_fit(PString self, size_t _Nbytes){
         return;
     }
 
-    if(self->cap == 0) self->cap = 1;
-
     size_t tot_bytes = (self->len + _Nbytes);
 
-    while(tot_bytes > (self)->cap)
-        (self)->cap *= 2;
+    // Calculating the new size
+    self->cap = (STRING_CHUNK_SIZE * (tot_bytes / STRING_CHUNK_SIZE)) 
+                    + (STRING_CHUNK_SIZE * ((tot_bytes % STRING_CHUNK_SIZE) > 0)); 
 
 allocator:
     self->ptr = (char*) STRING_REALLOC(self->ptr, self->cap);
@@ -344,66 +406,6 @@ void String_req(PString self, size_t Nbytes){
     _String_fit(self, Nbytes);
 }
 
-#ifdef __def_strlen
-static size_t __impl_strlen(const char* str1){
-    size_t __r = 0;
-    for( ;*str1++ != '\0'; ++__r) { }
-    return __r;
-}
-#endif
-
-#ifdef __def_strequ
-static bool __impl_equstr(const char* str1, const char* str2){
-    while(*str1 != '\0' && *str1++ == *str2++){ }
-    return (*str1 == '\0' && *str2 == '\0');
-}
-#endif
-
-#ifdef __def_strnequ
-static bool __impl_nequstr(const char* s1, const char* s2, size_t Nbytes){
-    while(Nbytes-- > 0){
-        if(*s1++ != *s2++) return false;
-    }
-    return true;
-}
-#endif
-
-#ifdef __def_strcpy
-static char* __impl_strcpy(char* s1, const char* s2){
-    char* s = s1;
-    while(*s2 != '\0') *s++ = *s2++;
-    *s = '\0';
-    return s1;
-}
-#endif
-
-#ifdef __def_strcat
-static char* __impl_strcat(char* s1, const char* s2){
-    char* s = s1;
-    while(*s++ != '\0') { }
-    while(*s2 != '\0'){ *s++ = *s2++; }
-    *s = '\0';
-    return s1;
-}
-#endif
-
-#ifdef __def_strncat
-static char* __impl_strncat(char* s1, const char* s2, size_t __n){
-    char* s = s1;
-    while(*s != '\0') { s++; }
-    while(__n-- > 0){ *s++ = *s2++; }
-    *s = '\0';
-    return s1;
-}
-#endif
-
-#ifdef __def_memset
-static void* __impl_memset(void* s1, int ch, size_t __n){
-    unsigned char* __r = (unsigned char*) s1;
-    for(size_t i = 0; i < __n; ++i) __r[i] = (unsigned char)ch;
-    return (void*)__r;
-}
-#endif
 
     /* constructors */
 String String_new(void){
@@ -1045,8 +1047,6 @@ void String_shrink_for(PString self, size_t Nbytes){
     ////////////////////////////////////
 	//	SV FUNCTION DECLARATION START //
 
-//? TODO
-	
 	//	SV FUNCTION DECLARATION END //
 	/////////////////////////////////
 	/************/
@@ -1063,5 +1063,33 @@ void String_shrink_for(PString self, size_t Nbytes){
 #undef STRNCAT
 
 #endif
+
+/**
+ * 
+ *                      -----------------------------
+ *                          -*- ANTER LIBRARY -*-
+ *                      -----------------------------    
+ *  
+ *      Version Conventions:
+ *      - Modifying comments does not update the version.
+ *      - PATCH is incremented in case of a bug fix or refactoring without touching the API.
+ *      - MINOR is incremented when new functions and/or types are added in a way that does
+ *        not break any existing user code.
+ *      - MAJOR update should be just a periodic cleanup of the deprecated functions and types
+ *        without really modifying any existing functionality.
+ * 
+ *      
+ *      VERSION HISTORY
+ * 
+ *      |    DATE    |  VERSION  |              DESCRIPTION
+ *      |            |           |
+ *      | (26/08/25) |   0.1.1   | ++ Some fixes about the macros that could cause some warnings
+ *      |            |           | ++ New method for caluclating the necessary space
+ *      |            |           |
+ *      | (24/08/25) |   0.1.0   | First release of the library
+ *      |            |           |
+ *      |            |           |
+ * 
+ **/
 
 // TODO: add support for wstrings

@@ -36,7 +36,7 @@ int fn_status[FUNC_COUNT];
 int tester_header_length = 60;
 
 int main(void){
-    __impl_memset(fn_status, FNS_FUNCTION_FAILED, sizeof(fn_status));
+    MEMSET(fn_status, FNS_FUNCTION_FAILED, sizeof(fn_status));
     String s1 = String_new_from_cstr("Hello Please World!!");
 	String s2 = String_new_from_cstr("Hello Please World! Please");
 	String s3 = String_new_from_cstr("Help me/Hello World"); 

@@ -1,3 +1,4 @@
+#define STRING_CHUNK_SIZE 8
 #include "__string_tester.h"
 
 /**
@@ -13,7 +14,7 @@
 #define TEST_FN(fn, s, ...)\
         do{\
             fn(&(s), __VA_ARGS__);\
-            if(__impl_equstr((s).ptr, __exp))\
+            if(STREQU((s).ptr, __exp))\
                  fn_status[idx] = FNS_FUNCTION_SUCCED;\
             else fn_status[idx] = FNS_FUNCTION_FAILED;\
             __impl_tester_log(#fn, idx++, (s).ptr, __exp);\
@@ -25,7 +26,7 @@ int fn_status[4];
 int tester_header_length = 60;
 
 int main(void){
-    __impl_memset(fn_status, FNS_FUNCTION_FAILED, sizeof(fn_status));
+    MEMSET(fn_status, FNS_FUNCTION_FAILED, sizeof(fn_status));
     size_t idx = 0;
 
     String s1 = String_new_from_cstr("HelWorld");

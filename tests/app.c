@@ -31,7 +31,7 @@
 #define TEST_FN(fn, s, ...)\
         do{\
             fn(&(s), __VA_ARGS__);\
-            if(__impl_equstr((s).ptr, __exp))\
+            if(STREQU((s).ptr, __exp))\
                  fn_status[idx] = FNS_FUNCTION_SUCCED;\
             else fn_status[idx] = FNS_FUNCTION_FAILED;\
             __impl_tester_log(#fn, idx++, (s).ptr, __exp);\
@@ -45,7 +45,7 @@ int tester_header_length =  60;
 size_t idx = 0;
 
 int main(void){
-    __impl_memset(fn_status, 1, sizeof(fn_status));
+    MEMSET(fn_status, 1, sizeof(fn_status));
 
     String s1 = String_new( );
     String s2 = String_new_from_cstr("Hello World");

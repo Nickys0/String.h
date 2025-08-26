@@ -1,7 +1,7 @@
 #define STRING_INIT_MEM_AFTER_ALLOC
 #define STRING_IMPLEMENTATION
-#include <stdio.h>
 #include "../String.h"
+#include <stdio.h>
 #include "ansi_colors.h"
 #include <unistd.h>
 #include <wchar.h>
@@ -133,9 +133,9 @@ static void __impl_test_end(void){
 // This prints a single tester function info
 void __impl_tester_log(CStr fname, size_t idx, CStr res, CStr expected){
    int f_status = fn_status[idx];
+   int bytes = 0;
+   bytes += fwprintf(stdout, L"║ [%zu] ", idx);
     if(is_atty){
-        int bytes = 0;
-        bytes += fwprintf(stdout, L"║ [%zu] ", idx);
         bytes += fwprintf(stdout, L"Function: ");
         if(f_status == FNS_UNKNOWN_BEAHAVIOR)
             fwprintf(stdout, L""MK_HYELLOW_TXT("%-*s"), tester_header_length - bytes, fname);
@@ -143,11 +143,11 @@ void __impl_tester_log(CStr fname, size_t idx, CStr res, CStr expected){
             fwprintf(stdout, L""MK_HGREEN_TXT("%-*s"), tester_header_length - bytes, fname);
         else if(f_status == FNS_FUNCTION_FAILED)
             fwprintf(stdout, L""MK_HRED_TXT("%-*s"), tester_header_length - bytes, fname);
+        else 
+            assert(0 && "Something went wrong!");
         fwprintf(stdout, L"║");
     }else{
         // Maybe we can center the functions?
-        int bytes = 0;
-        bytes += fwprintf(stdout, L"║ [%zu] ", idx);
         bytes += fwprintf(stdout, L"Function: %-25s ", fname);
         if(f_status == FNS_UNKNOWN_BEAHAVIOR)
             fwprintf(stdout, L"[U]");
@@ -162,7 +162,7 @@ void __impl_tester_log(CStr fname, size_t idx, CStr res, CStr expected){
         fwprintf(stdout, L"║");
     }
     fwprintf(stdout, L"\n");
-    if(f_status != FNS_FUNCTION_SUCCED){
+    if(f_status == FNS_FUNCTION_FAILED){
         fwprintf(stdout, L"║  ╠══ Result:   %s\n", res);
         fwprintf(stdout, L"║  ╚══ Expected: %s\n", expected);
     }
