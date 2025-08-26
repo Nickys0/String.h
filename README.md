@@ -19,13 +19,13 @@ int main(int argc, char** argv){
 
 ## Tests
 
-To run tests you just need a C compiler to compile the bil.c file
+To run tests you just need a C compiler to compile the nob.c file
 
 ```bash
 gcc -o tester bil.c
 ```
 
-This file uses the [nob.h](https://github.com/tsoding/nob.h/) technology to let C to act like scripts.
+This file uses the [nob.h](https://github.com/tsoding/nob.h/) technology to let C act like scripts.
 After compiled you can run it to test all the tests/*.c files
 
 
