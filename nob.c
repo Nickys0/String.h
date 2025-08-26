@@ -22,7 +22,7 @@ bool comp_run_test(const char* basename){
         .f_out = out,
         .args = &(Nob_Builder_Args){
             .Warnings = NOB_ARG_LIST("-Werror=incompatible-pointer-types"),
-            .others = NOB_ARG_LIST("-ggdb")
+            .others = NOB_ARG_LIST("-ggdb", "-DSTRING")
         }
     };
 
