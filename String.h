@@ -307,13 +307,13 @@ STRAPI void String_free(PString self);
 #ifdef STRING_IMPLEMENTATION
 
 // It's to avoid including string.h
-static size_t __impl_strlen(const char* str1);
-static bool __impl_equstr(const char* str1, const char* str2);
+// static size_t __impl_strlen(const char* str1);
+// static bool __impl_equstr(const char* str1, const char* str2);
 
-static char* __impl_strcpy(char* s1, const char* s2);
-static char* __impl_strcat(char* s1, const char* s2);
-static char* __impl_strncat(char* s1, const char* s2, size_t __n);
-static void* __impl_memset(void* s1, int ch, size_t __n);
+// static char* __impl_strcpy(char* s1, const char* s2);
+// static char* __impl_strcat(char* s1, const char* s2);
+// static char* __impl_strncat(char* s1, const char* s2, size_t __n);
+// static void* __impl_memset(void* s1, int ch, size_t __n);
 
 // This function will check if there is enough space for pushing _Nbytes into self, 
 // if not it will expand the string
@@ -352,14 +352,14 @@ static size_t __impl_strlen(const char* str1){
 }
 #endif
 
-#ifdef STREQU
+#ifdef __def_strequ
 static bool __impl_equstr(const char* str1, const char* str2){
     while(*str1 != '\0' && *str1++ == *str2++){ }
     return (*str1 == '\0' && *str2 == '\0');
 }
 #endif
 
-#ifdef STRNEQU
+#ifdef __def_strnequ
 static bool __impl_nequstr(const char* s1, const char* s2, size_t Nbytes){
     while(Nbytes-- > 0){
         if(*s1++ != *s2++) return false;
@@ -368,7 +368,7 @@ static bool __impl_nequstr(const char* s1, const char* s2, size_t Nbytes){
 }
 #endif
 
-#ifdef STRCPY
+#ifdef __def_strcpy
 static char* __impl_strcpy(char* s1, const char* s2){
     char* s = s1;
     while(*s2 != '\0') *s++ = *s2++;
@@ -377,7 +377,7 @@ static char* __impl_strcpy(char* s1, const char* s2){
 }
 #endif
 
-#ifdef STRCAT
+#ifdef __def_strcat
 static char* __impl_strcat(char* s1, const char* s2){
     char* s = s1;
     while(*s++ != '\0') { }
@@ -387,7 +387,7 @@ static char* __impl_strcat(char* s1, const char* s2){
 }
 #endif
 
-#ifdef STRNCAT
+#ifdef __def_strncat
 static char* __impl_strncat(char* s1, const char* s2, size_t __n){
     char* s = s1;
     while(*s != '\0') { s++; }
@@ -397,7 +397,7 @@ static char* __impl_strncat(char* s1, const char* s2, size_t __n){
 }
 #endif
 
-#ifdef MEMSET
+#ifdef __def_memset
 static void* __impl_memset(void* s1, int ch, size_t __n){
     unsigned char* __r = (unsigned char*) s1;
     for(size_t i = 0; i < __n; ++i) __r[i] = (unsigned char)ch;
