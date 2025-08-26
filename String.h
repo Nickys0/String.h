@@ -392,7 +392,6 @@ static void _String_fit(PString self, size_t _Nbytes){
     self->cap = (STRING_CHUNK_SIZE * (tot_bytes / STRING_CHUNK_SIZE)) 
                     + (STRING_CHUNK_SIZE * ((tot_bytes % STRING_CHUNK_SIZE) > 0)); 
 
-allocator:
     self->ptr = (char*) STRING_REALLOC(self->ptr, self->cap);
     assert(self->ptr != NULL); /* We don't wann deal with allocation errors */
 
